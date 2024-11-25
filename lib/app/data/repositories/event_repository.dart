@@ -25,7 +25,7 @@ class EventRepository implements IEventRepository {
 
   EventRepository({required this.client});
 
-   @override
+  @override
   Future<List<EventModel>> getEventos() async {
     final response = await client.get(
       url: 'https://xote-api-development.up.railway.app/xote/get',
@@ -33,7 +33,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
-   @override
+  @override
   Future<List<EventModel>> getFavoritos() async {
     final response = await client.get(
       url: 'https://xote-api-development.up.railway.app/xote/isFavoriteTrue',
@@ -106,29 +106,32 @@ class EventRepository implements IEventRepository {
   }
 
   @override
-  Future<List<EventModel>> getEventsByCity(eventCity) async {
+  Future<List<EventModel>> getEventsByCity(String eventCity) async {
     final response = await client.get(
-      url: 'https://xote-api-development.up.railway.app/xote/city/$eventCity'
+      url: 'https://xote-api-development.up.railway.app/xote/city/$eventCity',
     );
     return _handleResponse(response);
   }
 
-  // Método para favoritar evento
+  // Método para favoritar evento (utilizando PUT)
   @override
   Future<void> favoriteEvent(String id) async {
-    final response = await client.post(
-      url: 'https://xote-api-development.up.railway.app/xote/favorite/$id',
+    final response = await client.put(
+      url: 'https://xote-api-development.up.railway.app/xote/$id/favorite',
+      body: ({'isFavorite': true}),  
     );
-    _handleResponse(response);
+    _handleResponse(response);  // Tratamento da resposta da API
   }
 
-  // Método para desfavoritar evento
+  // Método para desfavoritar evento (utilizando PUT)
   @override
   Future<void> unfavoriteEvent(String id) async {
-    final response = await client.post(
-      url: 'https://xote-api-development.up.railway.app/xote/unfavorite/$id',
+    final response = await client.put(
+      url: 'https://xote-api-development.up.railway.app/xote/$id/favorite',
+      body: ({'isFavorite': false}),  
+
     );
-    _handleResponse(response);
+    _handleResponse(response);  // Tratamento da resposta da API
   }
 
   Future<List<EventModel>> _handleResponse(http.Response response) async {

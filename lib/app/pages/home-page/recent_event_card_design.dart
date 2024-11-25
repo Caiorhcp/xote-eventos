@@ -65,14 +65,21 @@ class RecentEventCardDesign extends StatelessWidget {
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    event.title,
-                    style: const TextStyle(
-                      color: Color(0xFFFFB854),
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 150, // Define a largura máxima para o texto.
                     ),
-                    textAlign: TextAlign.center,
+                    child: Text(
+                      event.title,
+                      style: const TextStyle(
+                        color: Color(0xFFFFB854),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2, // Limita a 2 linhas.
+                      overflow: TextOverflow.ellipsis, // Adiciona "..." ao final se ultrapassar.
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2),

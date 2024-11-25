@@ -10,82 +10,156 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color payColor = event.pay ? Colors.red : Colors.green;
-
-    const TextStyle greyTextStyle = TextStyle(color: Colors.grey);
-    const TextStyle titleTextStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white);
-    const TextStyle detailTextStyle = TextStyle(color: Colors.blue, fontWeight: FontWeight.w600);
+    final payColor = event.pay ? Colors.red : Colors.green;
+    final payText = event.pay ? 'PAGO' : 'GRÁTIS';
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
-        );
-      },
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
+      ),
       child: Card(
-        elevation: 6,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: const Color(0xFF000D1F),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Stack(
+        elevation: 8,
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF001F3F), Color(0xFF000D1F)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(2, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
             children: [
-              Row(
+              Stack(
                 children: [
-                  // Imagem do evento com tratamento de erro
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: CachedNetworkImage(
-                      imageUrl: event.imageUrl,
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
+                  Hero(
+                    tag: event.id,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: CachedNetworkImage(
+                        imageUrl: event.imageUrl,
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                        errorWidget: (_, __, ___) => const Icon(Icons.error, color: Colors.red, size: 30),
                       ),
-                      errorWidget: (context, url, error) => const Center(
-                        child: Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 30,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: payColor.withOpacity(0.8),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        payText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(event.title, style: titleTextStyle),
-                        Text('Data: ${event.formattedDate}', style: greyTextStyle),
-                        Text('Local: ${event.local}', style: greyTextStyle),
-                        Text('Cidade: ${event.city}', style: greyTextStyle),
-                        const SizedBox(height: 8),
-                        const Text('Clique para mais detalhes', style: detailTextStyle),
-                      ],
-                    ),
-                  ),
                 ],
               ),
-              Positioned(
-                bottom: 8,
-                right: 16,
-                child: Text(
-                  '\$', // Símbolo de cifrão
-                  style: TextStyle(
-                    color: payColor,
-                    fontSize: 24, 
-                    fontWeight: FontWeight.bold,
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Text(
+                      event.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.amber,
+                        fontFamily: 'Poppins',
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    _infoRow(Icons.calendar_today, 'Data: ${event.formattedDate}'),
+                    _infoCityRow(Icons.place, 'Cidade: ${event.city}'),
+                    const Text(
+                      'Clique para mais detalhes',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoCityRow(IconData icon, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: Colors.grey),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            softWrap: true,
+          ),
+        ),
+      ],
     );
   }
 }
