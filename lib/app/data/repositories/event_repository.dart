@@ -4,6 +4,8 @@ import 'package:xote_eventos/app/data/http/http_client.dart';
 import 'package:xote_eventos/app/data/models/event_model.dart';
 import 'package:http/http.dart' as http;
 
+/// Interface que define os métodos obrigatórios para o repositório de eventos.
+/// Facilita o desacoplamento e garante que qualquer implementação respeite este contrato.
 abstract class IEventRepository {
   Future<List<EventModel>> getEventos();
   Future<List<EventModel>> getRecentEvents();
@@ -20,11 +22,16 @@ abstract class IEventRepository {
   Future<void> unfavoriteEvent(String id);
 }
 
+/// Implementação concreta do repositório de eventos.
+/// Realiza requisições HTTP para uma API externa e manipula os dados recebidos.
 class EventRepository implements IEventRepository {
+  /// Cliente HTTP utilizado para realizar as requisições.
   final IHttpClient client;
 
+  /// Construtor que exige a injeção de um cliente HTTP.
   EventRepository({required this.client});
 
+  /// Obtém todos os eventos disponíveis.
   @override
   Future<List<EventModel>> getEventos() async {
     final response = await client.get(
@@ -33,6 +40,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém todos os eventos marcados como favoritos.
   @override
   Future<List<EventModel>> getFavoritos() async {
     final response = await client.get(
@@ -41,6 +49,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém os eventos mais recentes.
   @override
   Future<List<EventModel>> getRecentEvents() async {
     final response = await client.get(
@@ -49,6 +58,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém os eventos pagos.
   @override
   Future<List<EventModel>> getPaidEvents() async {
     final response = await client.get(
@@ -57,6 +67,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém os eventos pagos em ordem crescente de preço.
   @override
   Future<List<EventModel>> getPaidEventsAsc() async {
     final response = await client.get(
@@ -65,6 +76,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém os eventos pagos em ordem decrescente de preço.
   @override
   Future<List<EventModel>> getPaidEventsDesc() async {
     final response = await client.get(
@@ -73,6 +85,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém os eventos gratuitos.
   @override
   Future<List<EventModel>> getFreeEvents() async {
     final response = await client.get(
@@ -81,6 +94,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém eventos filtrados por tipo.
   @override
   Future<List<EventModel>> getEventsByType(String eventType) async {
     final response = await client.get(
@@ -89,6 +103,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém eventos ordenados por data em ordem crescente.
   @override
   Future<List<EventModel>> getEventsByDateAsc() async {
     final response = await client.get(
@@ -97,6 +112,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém eventos ordenados por data em ordem decrescente.
   @override
   Future<List<EventModel>> getEventsByDateDesc() async {
     final response = await client.get(
@@ -105,6 +121,7 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
+  /// Obtém eventos filtrados por cidade.
   @override
   Future<List<EventModel>> getEventsByCity(String eventCity) async {
     final response = await client.get(
@@ -113,34 +130,36 @@ class EventRepository implements IEventRepository {
     return _handleResponse(response);
   }
 
-  // Método para favoritar evento (utilizando PUT)
+  /// Marca um evento como favorito utilizando uma requisição PUT.
   @override
   Future<void> favoriteEvent(String id) async {
     final response = await client.put(
       url: 'https://xote-api-development.up.railway.app/xote/$id/favorite',
-      body: ({'isFavorite': true}),  
+      body: ({'isFavorite': true}),
     );
-    _handleResponse(response);  // Tratamento da resposta da API
+    _handleResponse(response); // Valida a resposta da API.
   }
 
-  // Método para desfavoritar evento (utilizando PUT)
+  /// Remove a marcação de favorito de um evento utilizando uma requisição PUT.
   @override
   Future<void> unfavoriteEvent(String id) async {
     final response = await client.put(
       url: 'https://xote-api-development.up.railway.app/xote/$id/favorite',
-      body: ({'isFavorite': false}),  
-
+      body: ({'isFavorite': false}),
     );
-    _handleResponse(response);  // Tratamento da resposta da API
+    _handleResponse(response); // Valida a resposta da API.
   }
 
+  /// Trata a resposta da API e retorna uma lista de [EventModel].
+  /// 
+  /// Lança exceções em caso de erro na requisição ou no formato da resposta.
   Future<List<EventModel>> _handleResponse(http.Response response) async {
     if (response.statusCode == 200) {
       final List<EventModel> eventos = [];
-      
+
       try {
         final body = jsonDecode(response.body);
-        
+
         if (body['XoteEventos'] != null && body['XoteEventos'] is List) {
           final eventosList = body['XoteEventos'] as List;
 
@@ -157,7 +176,7 @@ class EventRepository implements IEventRepository {
 
       return eventos;
     } else if (response.statusCode == 404) {
-      throw NotFoundException('A url informada não é válida');
+      throw NotFoundException('A URL informada não é válida');
     } else {
       throw Exception('Não foi possível acessar os eventos: ${response.reasonPhrase}');
     }

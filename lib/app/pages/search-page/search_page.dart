@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:xote_eventos/app/data/models/event_model.dart';
 import 'package:xote_eventos/app/pages/search-page/animations.dart';
 import 'package:xote_eventos/app/pages/stores/evento_store.dart';
